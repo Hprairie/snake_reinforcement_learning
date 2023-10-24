@@ -12,15 +12,15 @@ class Linear_QNet(nn.Module):
                                           nn.MaxPool2d(kernel_size=(2, 2)))
         self.conv_layer_2 = nn.Sequential(nn.Conv2d(kernels, kernels, kernel_size=(3, 3)),
                                           nn.MaxPool2d(kernel_size=(2, 2)))
-        self.linear_layer = nn.Sequential(nn.Linear(6 * 4, hidden_layer),
+        self.linear_layer = nn.Sequential(nn.Linear(6 * 4 * 10, hidden_layer),
                                           nn.ReLU(),
                                           nn.Linear(hidden_layer, output_size))
 
     def forward(self, X):
-        X = X.reshape(-1, 32, 24)
+        X = X.reshape(-1, 1, 32, 24)
         X = self.conv_layer_1(X)
         X = self.conv_layer_2(X)
-        X = X.reshape(-1, 6 * 4)
+        X = X.reshape(-1, 6 * 4 * 10)
         X = self.linear_layer(X)
         return X
     
@@ -47,8 +47,7 @@ class QTrainer:
         reward = torch.tensor(reward, dtype=torch.float)
         next_state = torch.tensor(next_state, dtype=torch.float)
 
-
-        if len(current_state.shape) == 1:
+        if len(current_state.shape) == 2:
             current_state = torch.unsqueeze(current_state, 0)
             move = torch.unsqueeze(move, 0)
             reward = torch.unsqueeze(reward, 0)

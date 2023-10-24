@@ -59,11 +59,11 @@ class SnakeGame:
 
         # Insert the snake into the context
         for body_point in self.snake:
-            context[int(body_point.x // BLOCK_SIZE)][int(body_point.y // BLOCK_SIZE)] = 1
+            context[int((body_point.x - BLOCK_SIZE )// BLOCK_SIZE)][int((body_point.y - BLOCK_SIZE) // BLOCK_SIZE)] = 1
         # Inset the food into the context
-        context[int(self.food.x // BLOCK_SIZE)][int(self.food.y // BLOCK_SIZE)] = 3
+        context[int((self.food.x - BLOCK_SIZE) // BLOCK_SIZE)][int((self.food.y - BLOCK_SIZE) // BLOCK_SIZE)] = 3
         # Insert the head into the context
-        context[int(self.head.x // BLOCK_SIZE)][int(self.head.y // BLOCK_SIZE)] = 2
+        context[int((self.head.x - BLOCK_SIZE) // BLOCK_SIZE)][int((self.head.y - BLOCK_SIZE)// BLOCK_SIZE)] = 2
 
         return context
 
