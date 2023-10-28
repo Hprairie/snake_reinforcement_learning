@@ -8,19 +8,21 @@ import os
 class Linear_QNet(nn.Module):
     def __init__(self, input_size, kernels, hidden_layer, output_size):
         super().__init__()
-        self.conv_layer_1 = nn.Sequential(nn.Conv2d(input_size, kernels, kernel_size=(3, 3)),
-                                          nn.MaxPool2d(kernel_size=(2, 2)))
-        self.conv_layer_2 = nn.Sequential(nn.Conv2d(kernels, kernels, kernel_size=(3, 3)),
-                                          nn.MaxPool2d(kernel_size=(2, 2)))
-        self.linear_layer = nn.Sequential(nn.Linear(6 * 4 * 10, hidden_layer),
+        self.conv_layer_1 = nn.Sequential(nn.Conv2d(input_size, kernels, kernel_size=(2, 2)),
+                                        #   nn.MaxPool2d(kernel_size=(2, 2))
+                                          )
+        self.conv_layer_2 = nn.Sequential(nn.Conv2d(kernels, kernels, kernel_size=(2, 2)),
+                                        #   nn.MaxPool2d(kernel_size=(2, 2))
+                                          )
+        self.linear_layer = nn.Sequential(nn.Linear(4 * 4 * 10, hidden_layer),
                                           nn.ReLU(),
                                           nn.Linear(hidden_layer, output_size))
 
     def forward(self, X):
-        X = X.reshape(-1, 1, 32, 24)
+        X = X.reshape(-1, 1, 6, 6)
         X = self.conv_layer_1(X)
         X = self.conv_layer_2(X)
-        X = X.reshape(-1, 6 * 4 * 10)
+        X = X.reshape(-1, 4 * 4 * 10)
         X = self.linear_layer(X)
         return X
     

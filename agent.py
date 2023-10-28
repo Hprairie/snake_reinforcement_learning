@@ -15,7 +15,7 @@ class Agent:
     def __init__(self):
         self.number_of_games = 0
         self.epsilon = 0 # Control the randomness in the learning 
-        self.gamma = 0.9 # Discount Rate
+        self.gamma = 0.95 # Discount Rate
         self.memory = deque(maxlen=MAX_MEMORY) # Will call popleft when too large
 
         # TODO: model
