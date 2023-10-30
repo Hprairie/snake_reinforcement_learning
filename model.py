@@ -59,7 +59,7 @@ class QTrainer:
             if not game_over[idx]:
                 Q_new = reward[idx] + self.gamma * torch.max(self.model(next_state[idx]))
 
-            target[idx][torch.argmax(move).item()] = Q_new
+            target[idx][torch.argmax(move[idx]).item()] = Q_new
 
         # 
         self.optimizer.zero_grad()

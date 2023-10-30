@@ -30,7 +30,7 @@ SPEED = 80
 
 class SnakeGame:
     
-    def __init__(self, w=640, h=480):
+    def __init__(self, w=120, h=120):
         self.w = w
         self.h = h
         # init display
@@ -119,7 +119,7 @@ class SnakeGame:
         if pt.x > self.w - BLOCK_SIZE or pt.x < 0 or pt.y > self.h - BLOCK_SIZE or pt.y < 0:
             return True
         # hits itself
-        if self.head in self.snake[1:]:
+        if pt in self.snake[1:]:
             return True
         
         return False
