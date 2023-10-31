@@ -54,7 +54,7 @@ class SnakeGame:
         self._place_food()
         self.frame_iteration = 0
 
-    def get_context(self):
+    def get_entire_game_context(self):
         context = np.zeros((self.w // BLOCK_SIZE, self.h // BLOCK_SIZE), dtype=int)
 
         # Insert the snake into the context
@@ -113,11 +113,14 @@ class SnakeGame:
         return reward, game_over, self.score
     
     def is_collision(self, pt=None):
+        # If temporary function call of is_collision is used then pt -> point
         if pt is None:
             pt = self.head
+
         # hits boundary
         if pt.x > self.w - BLOCK_SIZE or pt.x < 0 or pt.y > self.h - BLOCK_SIZE or pt.y < 0:
             return True
+        
         # hits itself
         if pt in self.snake[1:]:
             return True

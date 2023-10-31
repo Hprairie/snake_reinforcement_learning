@@ -6,24 +6,14 @@ import torch.nn.functional as F
 import os
 
 class Linear_QNet(nn.Module):
-    def __init__(self, input_size, kernels, hidden_layer, output_size):
+    def __init__(self, input_size, hidden_size, output_size):
         super().__init__()
-        self.conv_layer_1 = nn.Sequential(nn.Conv2d(input_size, kernels, kernel_size=(2, 2)),
-                                        #   nn.MaxPool2d(kernel_size=(2, 2))
-                                          )
-        self.conv_layer_2 = nn.Sequential(nn.Conv2d(kernels, kernels, kernel_size=(2, 2)),
-                                        #   nn.MaxPool2d(kernel_size=(2, 2))
-                                          )
-        self.linear_layer = nn.Sequential(nn.Linear(4 * 4 * 10, hidden_layer),
-                                          nn.ReLU(),
-                                          nn.Linear(hidden_layer, output_size))
+        self.linear_1 = nn.Linear(input_size, hidden_size)
+        self.linear_2 = nn.Linear(hidden_size, output_size)
 
     def forward(self, X):
-        X = X.reshape(-1, 1, 6, 6)
-        X = self.conv_layer_1(X)
-        X = self.conv_layer_2(X)
-        X = X.reshape(-1, 4 * 4 * 10)
-        X = self.linear_layer(X)
+        X = F.relu(self.linear_1(X))
+        X = self.linear_2(X)
         return X
     
     def save(self, filename='model.pth'):
@@ -49,7 +39,8 @@ class QTrainer:
         reward = torch.tensor(reward, dtype=torch.float)
         next_state = torch.tensor(next_state, dtype=torch.float)
 
-        if len(current_state.shape) == 2:
+
+        if len(current_state.shape) == 1:
             current_state = torch.unsqueeze(current_state, 0)
             move = torch.unsqueeze(move, 0)
             reward = torch.unsqueeze(reward, 0)
@@ -68,7 +59,7 @@ class QTrainer:
             if not game_over[idx]:
                 Q_new = reward[idx] + self.gamma * torch.max(self.model(next_state[idx]))
 
-            target[idx][torch.argmax(move).item()] = Q_new
+            target[idx][torch.argmax(move[idx]).item()] = Q_new
 
         # 
         self.optimizer.zero_grad()
