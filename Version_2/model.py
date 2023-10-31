@@ -8,22 +8,22 @@ import os
 class Linear_QNet(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
         super().__init__()
-        self.conv_layer = nn.Sequential(nn.Conv2d(1, 10, (2, 2), 1),
-                                        nn.Conv2d(10, 10, (2, 2), 1))
-        self.fcls = nn.Sequential(nn.Linear(10 * 4 * 4 + input_size, hidden_size),
+        self.conv_layer = nn.Sequential(nn.Conv2d(1, 1, (2, 2), 1),
+                                        nn.Conv2d(1, 1, (2, 2), 1))
+        self.fcls = nn.Sequential(nn.Linear(1 * 4 * 4 + input_size, hidden_size),
                                   nn.ReLU(),
                                   nn.Linear(hidden_size, output_size))
 
     def forward(self, X_board_image, X_directional_data):
         # Reshape the image and dir
         X_board_image = X_board_image.reshape((-1, 1, 6, 6))
-        X_directional_data = X_directional_data.reshape((-1, 4))
+        X_directional_data = X_directional_data.reshape((-1, 8))
 
         # Send the board data through the CNN
         X_board_image = self.conv_layer(X_board_image)
         
         # Flatten the board data
-        X_board_image = X_board_image.reshape((-1, 10*4*4))
+        X_board_image = X_board_image.reshape((-1, 1*4*4))
 
         # Recombine board data with directional data
         X = torch.cat((X_board_image, X_directional_data), dim = 1)

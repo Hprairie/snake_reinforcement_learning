@@ -19,7 +19,7 @@ class Agent:
         self.memory = deque(maxlen=MAX_MEMORY) # Will call popleft when too large
 
         # TODO: model
-        self.Model = Linear_QNet(4, 256, 3)
+        self.Model = Linear_QNet(8, 256, 3)
         self.trainer = QTrainer(self.Model, learning_rate=LR, gamma=self.gamma)
 
     def get_state(self, game):
@@ -27,7 +27,12 @@ class Agent:
         directions = [game.direction == Direction.LEFT,
                       game.direction == Direction.RIGHT,
                       game.direction == Direction.UP,
-                      game.direction == Direction.DOWN]
+                      game.direction == Direction.DOWN,
+                      
+                      game.food.x < game.head.x,
+                      game.food.x > game.head.x,
+                      game.food.y < game.head.y,
+                      game.food.y > game.head.y]
 
         return game.get_entire_game_context(), directions
 
@@ -48,7 +53,7 @@ class Agent:
 
     def get_action(self, state_image, state_dir):
         # exploration / exploitation
-        self.epsilon = 80 - self.number_of_games
+        self.epsilon = 100 - self.number_of_games
         final_move = [0, 0, 0]
 
         if random.randint(0, 200) < self.epsilon:
