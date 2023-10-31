@@ -23,51 +23,13 @@ class Agent:
         self.trainer = QTrainer(self.Model, learning_rate=LR, gamma=self.gamma)
 
     def get_state(self, game):
-        head = game.snake[0]
-        point_l = Point(head.x - 20, head.y)
-        point_r = Point(head.x + 20, head.y)
-        point_u = Point(head.x, head.y - 20)
-        point_d = Point(head.x, head.y + 20)
 
-        dir_l = game.direction == Direction.LEFT
-        dir_r = game.direction == Direction.RIGHT
-        dir_u = game.direction == Direction.UP
-        dir_d = game.direction == Direction.DOWN
+        directions = [game.direction == Direction.LEFT,
+                      game.direction == Direction.RIGHT,
+                      game.direction == Direction.UP,
+                      game.direction == Direction.DOWN]
 
-        state = [
-            # Danger staight
-            (dir_r and game.is_collision(point_r)) or
-            (dir_l and game.is_collision(point_l)) or
-            (dir_u and game.is_collision(point_u)) or
-            (dir_d and game.is_collision(point_d)),
-
-            # Danger right
-            (dir_r and game.is_collision(point_d)) or
-            (dir_l and game.is_collision(point_u)) or
-            (dir_u and game.is_collision(point_r)) or
-            (dir_d and game.is_collision(point_l)),
-
-            # Danger left
-            (dir_r and game.is_collision(point_u)) or
-            (dir_l and game.is_collision(point_d)) or
-            (dir_u and game.is_collision(point_l)) or
-            (dir_d and game.is_collision(point_r)),
-
-            # Move direction
-            dir_l,
-            dir_r,
-            dir_u,
-            dir_d,
-
-            # Food Location
-
-            game.food.x < game.head.x,
-            game.food.x > game.head.x,
-            game.food.y < game.head.y,
-            game.food.y > game.head.y
-        ]
-
-        return np.array(state, dtype=int)
+        return [game.get_entire_game_context(), directions]
 
     def remember(self, state, action, reward, next_state, game_over):
         self.memory.append((state, action, reward, next_state, game_over))
@@ -86,7 +48,7 @@ class Agent:
 
     def get_action(self, state):
         # exploration / exploitation
-
+        print(state)
         self.epsilon = 80 - self.number_of_games
         final_move = [0, 0, 0]
 
@@ -94,8 +56,9 @@ class Agent:
             move = random.randint(0,2)
             final_move[move] = 1
         else:
-            state_tensor = torch.tensor(state, dtype=torch.float)
-            prediction = self.Model(state_tensor)
+            image_state_tensor = torch.tensor(state[:, 0], dtype=torch.float)
+            direction_state_tensor = torch.tensor(state[:, 1], dtype=torch.float)
+            prediction = self.Model(image_state_tensor, direction_state_tensor)
             move = torch.argmax(prediction).item()
             final_move[move] = 1
         

@@ -5,17 +5,34 @@ import torch.nn.functional as F
 
 import os
 
+
+
+
 class Linear_QNet(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
         super().__init__()
-        self.linear_1 = nn.Linear(input_size, hidden_size)
-        self.linear_2 = nn.Linear(hidden_size, output_size)
+        self.conv_layer = nn.Sequential(nn.Conv2d(1, 10, (2, 2), 1),
+                                        nn.Conv2d(10, 10, (2, 2), 1))
+        self.fcls = nn.Sequential(nn.Linear(10 * 6 * 6 + input_size, hidden_size),
+                                  nn.ReLU(),
+                                  nn.Linear(hidden_size, output_size))
 
-    def forward(self, X):
-        X = F.relu(self.linear_1(X))
-        X = self.linear_2(X)
+    def forward(self, X_board_image, X_directional_data):
+
+        # Send the board data through the CNN
+        X_board_image = self.conv_layer(X_board_image)
+        
+        # Flatten the board data
+        X_board_image = X_board_image.reshape(-1, 10*6*6)
+
+        # Recombine board data with directional data
+        X = torch.cat((X_board_image, X_directional_data), dim = 1)
+
+        # Push through fully connected layers
+        X = self.fcls(X)
+
         return X
-    
+
     def save(self, filename='model.pth'):
         model_folder_path = './model'
 
@@ -34,11 +51,11 @@ class QTrainer:
         self.criterion = nn.MSELoss()
 
     def train_step(self, current_state, move, reward, next_state, game_over):
+
         current_state = torch.tensor(current_state, dtype=torch.float)
         move = torch.tensor(move, dtype=torch.float)
         reward = torch.tensor(reward, dtype=torch.float)
         next_state = torch.tensor(next_state, dtype=torch.float)
-
 
         if len(current_state.shape) == 1:
             current_state = torch.unsqueeze(current_state, 0)
