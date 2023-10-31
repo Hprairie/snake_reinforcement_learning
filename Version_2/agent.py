@@ -19,7 +19,7 @@ class Agent:
         self.memory = deque(maxlen=MAX_MEMORY) # Will call popleft when too large
 
         # TODO: model
-        self.Model = Linear_QNet(11, 256, 3)
+        self.Model = Linear_QNet(4, 256, 3)
         self.trainer = QTrainer(self.Model, learning_rate=LR, gamma=self.gamma)
 
     def get_state(self, game):
@@ -29,10 +29,10 @@ class Agent:
                       game.direction == Direction.UP,
                       game.direction == Direction.DOWN]
 
-        return [game.get_entire_game_context(), directions]
+        return game.get_entire_game_context(), directions
 
-    def remember(self, state, action, reward, next_state, game_over):
-        self.memory.append((state, action, reward, next_state, game_over))
+    def remember(self, state_image, state_dir, action, reward, next_state_image, next_state_dir, game_over):
+        self.memory.append((state_image, state_dir, action, reward, next_state_image, next_state_dir, game_over))
 
     def train_long_memory(self):
         if len(self.memory) > BATCH_SIZE:
@@ -40,15 +40,14 @@ class Agent:
         else:
             mini_sample = self.memory
 
-        state, action, reward, next_state, game_over = zip(*mini_sample)
-        self.trainer.train_step(state, action, reward, next_state, game_over)
+        state_image, state_dir, action, reward, next_state_image, next_state_dir, game_over = zip(*mini_sample)
+        self.trainer.train_step(state_image, state_dir, action, reward, next_state_image, next_state_dir, game_over)
 
-    def train_short_memory(self, state, action, reward, next_state, game_over):
-        self.trainer.train_step(state, action, reward, next_state, game_over)
+    def train_short_memory(self, state_image, state_dir, action, reward, next_state_image, next_state_dir, game_over):
+        self.trainer.train_step(state_image, state_dir, action, reward, next_state_image, next_state_dir, game_over)
 
-    def get_action(self, state):
+    def get_action(self, state_image, state_dir):
         # exploration / exploitation
-        print(state)
         self.epsilon = 80 - self.number_of_games
         final_move = [0, 0, 0]
 
@@ -56,8 +55,8 @@ class Agent:
             move = random.randint(0,2)
             final_move[move] = 1
         else:
-            image_state_tensor = torch.tensor(state[:, 0], dtype=torch.float)
-            direction_state_tensor = torch.tensor(state[:, 1], dtype=torch.float)
+            image_state_tensor = torch.tensor(state_image, dtype=torch.float)
+            direction_state_tensor = torch.tensor(state_dir, dtype=torch.float)
             prediction = self.Model(image_state_tensor, direction_state_tensor)
             move = torch.argmax(prediction).item()
             final_move[move] = 1
@@ -74,18 +73,18 @@ def train():
 
     while True:
         # get current state
-        current_state = agent.get_state(game)
+        current_state_image, current_state_dir = agent.get_state(game)
 
         # get move based on current state
-        final_move = agent.get_action(current_state)
+        final_move = agent.get_action(current_state_image, current_state_dir)
 
         # perform move and get new reward
         reward, game_over, score = game.play_step(final_move)
-        new_state = agent.get_state(game)
+        new_state_image, new_state_dir = agent.get_state(game)
 
-        agent.train_short_memory(current_state, final_move, reward, new_state, game_over)
+        agent.train_short_memory(current_state_image, current_state_dir, final_move, reward, new_state_image, new_state_dir, game_over)
 
-        agent.remember(current_state, final_move, reward, new_state, game_over)
+        agent.remember(current_state_image, current_state_dir, final_move, reward, new_state_image, new_state_dir, game_over)
 
         if game_over:
             #  train long memory, plot result
