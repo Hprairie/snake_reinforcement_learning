@@ -57,7 +57,7 @@ class Agent:
 
     def get_action(self, state):
         # exploration / exploitation
-        self.epsilon = 80 - self.number_of_games
+        self.epsilon = 100 - self.number_of_games
         final_move = [0, 0, 0]
 
         if random.randint(0, 200) < self.epsilon:
