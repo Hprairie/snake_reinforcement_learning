@@ -67,7 +67,7 @@ class QTrainer:
             game_over = (game_over, )
         
         # Predict Q values with current state
-        pred = self.model(current_state)
+        pred = self.target_model(current_state)
 
         # Predict Next Q values
         target = pred.clone()

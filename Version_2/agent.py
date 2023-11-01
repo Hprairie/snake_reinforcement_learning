@@ -11,7 +11,7 @@ MAX_MEMORY = 100_000
 BATCH_SIZE = 32
 LR = 0.0001
 TARGET_UPDATE = 1000
-AGENT_HISTORY_LENGTH = 2
+AGENT_HISTORY_LENGTH = 4
 
 class Agent:
     def __init__(self):
@@ -21,7 +21,7 @@ class Agent:
         self.epsilon_decay = 0.0002
         self.gamma = 0.9 # Discount Rate
         self.replay_buffer = deque(maxlen=MAX_MEMORY) # Replay Buffer
-        self.Model = Conv_QNet(2, 32, 128, 3)
+        self.Model = Conv_QNet(AGENT_HISTORY_LENGTH, 32, 128, 3)
         self.trainer = QTrainer(self.Model, learning_rate=LR, gamma=self.gamma, C=TARGET_UPDATE)
         self.frame_history_buffer = deque(maxlen=AGENT_HISTORY_LENGTH)
 
