@@ -55,15 +55,20 @@ class SnakeGame:
         self.frame_iteration = 0
 
     def get_entire_game_context(self):
-        context = np.zeros((self.w // BLOCK_SIZE, self.h // BLOCK_SIZE), dtype=int)
+        context = np.zeros(((self.w // BLOCK_SIZE) + 2, (self.h // BLOCK_SIZE) + 2), dtype=int)
+
+        # Create boarders
+        context[0, :] = -10
+        context[-1, :] = -10
+        context[:, 0] = -10
+        context[:, -1] = -10
 
         # Insert the snake into the context
         for body_point in self.snake:
-            context[int((body_point.x - BLOCK_SIZE )// BLOCK_SIZE)][int((body_point.y - BLOCK_SIZE) // BLOCK_SIZE)] = -100
+            context[int((body_point.y - BLOCK_SIZE )// BLOCK_SIZE) + 2, int((body_point.x - BLOCK_SIZE) // BLOCK_SIZE) + 2] = -1
 
         # Inset the food into the context
-        context[int((self.food.x - BLOCK_SIZE) // BLOCK_SIZE)][int((self.food.y - BLOCK_SIZE) // BLOCK_SIZE)] = 100
-
+        context[int((self.food.y - BLOCK_SIZE) // BLOCK_SIZE) + 2, int((self.food.x - BLOCK_SIZE) // BLOCK_SIZE) + 2] = 1
 
         return context
 
@@ -94,14 +99,15 @@ class SnakeGame:
         reward = 0
         game_over = False
         if self.is_collision() or self.frame_iteration > 100*len(self.snake):
+            self.snake.pop()
             game_over = True
-            reward = -15
+            reward = -10
             return reward, game_over, self.score
             
         # 4. place new food or just move
         if self.head == self.food:
             self.score += 1
-            reward = 20
+            reward = 10
             self._place_food()
         else:
             self.snake.pop()
@@ -139,6 +145,9 @@ class SnakeGame:
         text = font.render("Score: " + str(self.score), True, WHITE)
         self.display.blit(text, [0, 0])
         pygame.display.flip()
+
+        # print(self.get_entire_game_context())
+        # return
         
     def _move(self, action):
         # [straight, right_turn, left_turn]

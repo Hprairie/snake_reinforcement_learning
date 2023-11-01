@@ -12,7 +12,7 @@ class Conv_QNet(nn.Module):
                                         nn.ReLU(),
                                         nn.Conv2d(kernels, kernels, (2, 2), 1),
                                         nn.ReLU())
-        self.fcls = nn.Sequential(nn.Linear(kernels * 4 * 4, hidden_size),
+        self.fcls = nn.Sequential(nn.Linear(kernels * 6 * 6, hidden_size),
                                   nn.ReLU(),
                                   nn.Linear(hidden_size, output_size))
         
@@ -21,12 +21,12 @@ class Conv_QNet(nn.Module):
 
     def forward(self, X):
         # Reshape the image and dir
-        X = X.reshape((-1, self.input_dim, 6, 6))
+        X = X.reshape((-1, self.input_dim, 8, 8))
 
         # Pass through the network
         X = self.conv_layer(X)
 
-        X = X.reshape(-1, self.kernels * 4 * 4)
+        X = X.reshape(-1, self.kernels * 6 * 6)
 
         X = self.fcls(X)
 
