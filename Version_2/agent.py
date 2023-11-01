@@ -4,49 +4,58 @@ import numpy as np
 
 from collections import deque
 from snake_game import SnakeGame, Direction, Point
-from model import Linear_QNet, QTrainer
+from model import Conv_QNet, QTrainer
 import helper
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
 LR = 0.001
+TARGET_UPDATE = 100
+AGENT_HISTORY_LENGTH = 4
 
 class Agent:
     def __init__(self):
         self.number_of_games = 0
         self.epsilon = 0 # Control the randomness in the learning 
-        self.gamma = 0.95 # Discount Rate
-        self.memory = deque(maxlen=MAX_MEMORY) # Will call popleft when too large
-
-        # TODO: model
-        self.Model = Linear_QNet(4, 256, 3)
-        self.trainer = QTrainer(self.Model, learning_rate=LR, gamma=self.gamma)
+        self.gamma = 0.99 # Discount Rate
+        self.replay_buffer = deque(maxlen=MAX_MEMORY) # Replay Buffer
+        self.Model = Conv_QNet(4, 10, 256, 3)
+        self.trainer = QTrainer(self.Model, learning_rate=LR, gamma=self.gamma, C=TARGET_UPDATE)
+        self.frame_history_buffer = deque(maxlen=AGENT_HISTORY_LENGTH)
 
     def get_state(self, game):
+        
+        current_frame = game.get_entire_game_context()
 
-        directions = [game.direction == Direction.LEFT,
-                      game.direction == Direction.RIGHT,
-                      game.direction == Direction.UP,
-                      game.direction == Direction.DOWN]
+        # Used at the beginning of the game to fill the buffer (will only occur on init)
+        while len(self.frame_history_buffer) != AGENT_HISTORY_LENGTH:
+            self.frame_history_buffer.append(current_frame)
 
-        return game.get_entire_game_context(), directions
+        # Push the current frame into the buffer if not already there
+        if not np.array_equal(current_frame,self.frame_history_buffer[-1]):
+            self.frame_history_buffer.append(current_frame)
 
-    def remember(self, state_image, state_dir, action, reward, next_state_image, next_state_dir, game_over):
-        self.memory.append((state_image, state_dir, action, reward, next_state_image, next_state_dir, game_over))
+        # Return the replay buffer as a signle np tensor
+        return_array = np.stack(self.frame_history_buffer, axis=0)
+        return return_array
+    
+
+    def remember(self, state, action, reward, next_state, game_over):
+        self.replay_buffer.append((state, action, reward, next_state, game_over))
 
     def train_long_memory(self):
-        if len(self.memory) > BATCH_SIZE:
-            mini_sample = random.sample(self.memory, BATCH_SIZE) # list of tuples
+        if len(self.replay_buffer) > BATCH_SIZE:
+            mini_sample = random.sample(self.replay_buffer, BATCH_SIZE) # list of tuples
         else:
-            mini_sample = self.memory
+            mini_sample = self.replay_buffer
 
-        state_image, state_dir, action, reward, next_state_image, next_state_dir, game_over = zip(*mini_sample)
-        self.trainer.train_step(state_image, state_dir, action, reward, next_state_image, next_state_dir, game_over)
+        state, action, reward, next_state, game_over = zip(*mini_sample)
+        self.trainer.train_step(state, action, reward, next_state, game_over)
 
-    def train_short_memory(self, state_image, state_dir, action, reward, next_state_image, next_state_dir, game_over):
-        self.trainer.train_step(state_image, state_dir, action, reward, next_state_image, next_state_dir, game_over)
+    def train_short_memory(self, state, action, reward, next_state, game_over):
+        self.trainer.train_step(state, action, reward, next_state, game_over)
 
-    def get_action(self, state_image, state_dir):
+    def get_action(self, state):
         # exploration / exploitation
         self.epsilon = 80 - self.number_of_games
         final_move = [0, 0, 0]
@@ -55,9 +64,8 @@ class Agent:
             move = random.randint(0,2)
             final_move[move] = 1
         else:
-            image_state_tensor = torch.tensor(state_image, dtype=torch.float)
-            direction_state_tensor = torch.tensor(state_dir, dtype=torch.float)
-            prediction = self.Model(image_state_tensor, direction_state_tensor)
+            state_tensor = torch.tensor(state, dtype=torch.float)
+            prediction = self.Model(state_tensor)
             move = torch.argmax(prediction).item()
             final_move[move] = 1
         
@@ -73,18 +81,18 @@ def train():
 
     while True:
         # get current state
-        current_state_image, current_state_dir = agent.get_state(game)
+        current_state = agent.get_state(game)
 
         # get move based on current state
-        final_move = agent.get_action(current_state_image, current_state_dir)
+        final_move = agent.get_action(current_state)
 
         # perform move and get new reward
         reward, game_over, score = game.play_step(final_move)
-        new_state_image, new_state_dir = agent.get_state(game)
+        new_state = agent.get_state(game)
 
-        agent.train_short_memory(current_state_image, current_state_dir, final_move, reward, new_state_image, new_state_dir, game_over)
+        agent.train_short_memory(current_state, final_move, reward, new_state, game_over)
 
-        agent.remember(current_state_image, current_state_dir, final_move, reward, new_state_image, new_state_dir, game_over)
+        agent.remember(current_state, final_move, reward, new_state, game_over)
 
         if game_over:
             #  train long memory, plot result

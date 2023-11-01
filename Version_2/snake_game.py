@@ -59,11 +59,11 @@ class SnakeGame:
 
         # Insert the snake into the context
         for body_point in self.snake:
-            context[int((body_point.x - BLOCK_SIZE )// BLOCK_SIZE)][int((body_point.y - BLOCK_SIZE) // BLOCK_SIZE)] = 1
+            context[int((body_point.x - BLOCK_SIZE )// BLOCK_SIZE)][int((body_point.y - BLOCK_SIZE) // BLOCK_SIZE)] = -100
+
         # Inset the food into the context
-        context[int((self.food.x - BLOCK_SIZE) // BLOCK_SIZE)][int((self.food.y - BLOCK_SIZE) // BLOCK_SIZE)] = 3
-        # Insert the head into the context
-        context[int((self.head.x - BLOCK_SIZE) // BLOCK_SIZE)][int((self.head.y - BLOCK_SIZE)// BLOCK_SIZE)] = 2
+        context[int((self.food.x - BLOCK_SIZE) // BLOCK_SIZE)][int((self.food.y - BLOCK_SIZE) // BLOCK_SIZE)] = 100
+
 
         return context
 
@@ -101,7 +101,7 @@ class SnakeGame:
         # 4. place new food or just move
         if self.head == self.food:
             self.score += 1
-            reward = 10
+            reward = 20
             self._place_food()
         else:
             self.snake.pop()
