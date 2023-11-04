@@ -57,12 +57,12 @@ class SnakeGame:
         frames : int, optional
             The total number of sequential frames return in each
             state
-        start_length : int, optional
+        start_length : int, optional <- Not Setup
             The starting length of the snake
-        display_game : Bool, optional
+        display_game : Bool, optional <- Not Setup
             Choose wether or not to display the game, useful for
             debugging during training
-        seed : int, optional
+        seed : int, optional <- Not Setup
             Used for the randomness of spawning apples
         max_time_rate : int, optional
             Coefficient used to determine the max frames allowed
@@ -107,34 +107,58 @@ class SnakeGame:
         self.frame_iteration = 0
         self.state.clear()
 
-    def get_game_state(self):
+        # Init the game state with starting frames
+        while len(self.state) != self.frames:
+            self.state.append(self._get_game_frame())
+
+    def _get_game_frame(self):
         '''
-        Will return the current state of the game. A 3 dimensional tensor
+        Will return the current frame of the game. A 2 dimensional tensor
         is return as a numpy array has the dimensions in the form of
-        (frames, height, width)
+        (height, width)
 
         Returns
         -------
-        context: Numpy array
-            State of the game
+        frame: Numpy array
+            Current frame of the game
         '''
-        context = np.zeros(((self.board_size[0] // BLOCK_SIZE) + 2,
-                            (self.board_size[1] // BLOCK_SIZE) + 2), dtype=int)
+        frame = np.zeros(((self.board_size[0] // BLOCK_SIZE) + 2,
+                          (self.board_size[1] // BLOCK_SIZE) + 2), dtype=int)
 
         # Insert boarders
-        context[0, :] = -10
-        context[-1, :] = -10
-        context[:, 0] = -10
-        context[:, -1] = -10
+        frame[0, :] = -10
+        frame[-1, :] = -10
+        frame[:, 0] = -10
+        frame[:, -1] = -10
 
         # Insert the snake into the context
         for body_point in self.snake:
-            context[int((body_point.y - BLOCK_SIZE) // BLOCK_SIZE) + 2,
-                    int((body_point.x - BLOCK_SIZE) // BLOCK_SIZE) + 2] = -1
+            frame[int((body_point.y - BLOCK_SIZE) // BLOCK_SIZE) + 2,
+                  int((body_point.x - BLOCK_SIZE) // BLOCK_SIZE) + 2] = -1
 
         # Inset the food into the context
-        context[int((self.food.y - BLOCK_SIZE) // BLOCK_SIZE) + 2,
-                int((self.food.x - BLOCK_SIZE) // BLOCK_SIZE) + 2] = 1
+        frame[int((self.food.y - BLOCK_SIZE) // BLOCK_SIZE) + 2,
+              int((self.food.x - BLOCK_SIZE) // BLOCK_SIZE) + 2] = 1
+
+        return frame
+
+    def get_game_state(self):
+        '''
+        Will return the current state of the game which is stored in the
+        state buffer self.state. The return will be a numpy array in the
+        shape (frames, frame_height, frame_width)
+
+        Returns
+        -------
+        context : Numpy array
+            Current State of the game
+        '''
+        context = np.zeros((self.frames,
+                           (self.board_size[0] // BLOCK_SIZE) + 2,
+                           (self.board_size[1] // BLOCK_SIZE) + 2), dtype=int)
+
+        for i, frame in enumerate(self.state):
+            context[i] = frame
 
         return context
 

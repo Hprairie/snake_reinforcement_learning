@@ -1,0 +1,33 @@
+{
+    "_comments" : "First CNN based DQN model, around the 1000th game the model begins to learn in 6x6 game.",
+    "board_size" : [6, 6],
+    "frames" : 2,
+    "max_time_rate":100,
+    "supervised":0,
+    "obstacles":0,
+    "buffer_size":100000,
+    "model":{
+        "Conv2D":{
+            "filters":32,
+            "kernel_size":[2,2],
+            "stride" : 1,
+            "activation":"relu",
+            "data_format":"channels_last"
+        },
+        "Conv2D_1":{
+            "filters":32,
+            "kernel_size":[2,2],
+            "stride" : 1,
+            "activation":"relu",
+            "data_format":"channels_last"
+        },
+        "Flatten":{
+
+        },
+        "Dense":{
+            "neurons":128,
+            "activation":"relu",
+            "name":"action_prev_dense"
+        }
+    }
+}
