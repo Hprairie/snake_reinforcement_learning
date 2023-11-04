@@ -22,8 +22,8 @@ Point = namedtuple('Point', 'x, y')
 WHITE = (200, 200, 200)
 GREY = (128, 128, 128)
 RED = (200, 0, 0)
-GREEN1 = (0, 255, 0)
-GREEN2 = (0, 255, 100)
+GREEN1 = (0, 158, 0)
+GREEN2 = (0, 200, 0)
 BLACK = (0, 0, 0)
 
 BLOCK_SIZE = 20
@@ -312,6 +312,14 @@ class SnakeGame:
                                          pt.y + BLOCK_SIZE,
                                          BLOCK_SIZE - 1,
                                          BLOCK_SIZE - 1))
+
+        # Place Head
+        pygame.draw.rect(self.display,
+                         GREEN2,
+                         pygame.Rect(self.head.x + BLOCK_SIZE,
+                                     self.head.y + BLOCK_SIZE,
+                                     BLOCK_SIZE - 1,
+                                     BLOCK_SIZE - 1))
 
         # Place Food
         pygame.draw.rect(self.display,
