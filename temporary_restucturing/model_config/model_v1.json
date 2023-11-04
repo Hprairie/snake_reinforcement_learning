@@ -1,33 +1,51 @@
 {
     "_comments" : "First CNN based DQN model, around the 1000th game the model begins to learn in 6x6 game.",
     "board_size" : [6, 6],
+    "seed" : null,
     "frames" : 2,
-    "max_time_rate":100,
-    "supervised":0,
-    "obstacles":0,
-    "buffer_size":100000,
+    "start_length" : 3,
+    "display_game" : true,
+    "max_time_rate" : 100,
+    "supervised" : 0,
+    "obstacles" : 0,
+    "buffer_size" : 100000,
+    "batch_size" : 32,
+    "gamma" : 0.9,
+    "learning_rate" : 0.0001,
+    "optimizer" : "Adam",
+    "criterion" : "MSE",
+    "C" : 1000,
+    "epochs": 5000,
+    "exploration_strategy" : {
+        "name" : "epsilon-greedy",
+        "epsilon" : 1,
+        "epsilon_threshold" : 0.001,
+        "epsilon_decay" : 0.0002
+    },
     "model":{
         "Conv2D":{
-            "filters":32,
-            "kernel_size":[2,2],
-            "stride" : 1,
-            "activation":"relu",
-            "data_format":"channels_last"
+            "in_channels" : 2,
+            "out_channels" : 32,
+            "kernel_size" : [2,2],
+            "stride" : 1
         },
+        "ReLU" : {},
         "Conv2D_1":{
-            "filters":32,
-            "kernel_size":[2,2],
-            "stride" : 1,
-            "activation":"relu",
-            "data_format":"channels_last"
+            "in_channels" : 32,
+            "out_channels" : 32,
+            "kernel_size" : [2,2],
+            "stride" : 1
         },
-        "Flatten":{
-
-        },
+        "ReLU_2" : {},
+        "Flatten":{},
         "Dense":{
-            "neurons":128,
-            "activation":"relu",
-            "name":"action_prev_dense"
+            "in_features" : 1152,
+            "out_features" : 128
+        },
+        "ReLU_3" : {},
+        "Dense2":{
+            "in_features" : 128,
+            "out_features" : 3
         }
     }
 }

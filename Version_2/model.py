@@ -41,6 +41,7 @@ class Conv_QNet(nn.Module):
         file_name = os.path.join(model_folder_path, filename)
         torch.save(self.state_dict(), file_name)
 
+
 class QTrainer:
     def __init__(self, model, learning_rate, gamma, C):
         self.model = model

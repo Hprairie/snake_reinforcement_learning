@@ -122,8 +122,8 @@ class SnakeGame:
         frame: Numpy array
             Current frame of the game
         '''
-        frame = np.zeros(((self.board_size[0] // BLOCK_SIZE) + 2,
-                          (self.board_size[1] // BLOCK_SIZE) + 2), dtype=int)
+        frame = np.zeros(((self.board_size[0]) + 2,
+                          (self.board_size[1]) + 2), dtype=int)
 
         # Insert boarders
         frame[0, :] = -10
@@ -154,8 +154,8 @@ class SnakeGame:
             Current State of the game
         '''
         context = np.zeros((self.frames,
-                           (self.board_size[0] // BLOCK_SIZE) + 2,
-                           (self.board_size[1] // BLOCK_SIZE) + 2), dtype=int)
+                           (self.board_size[0]) + 2,
+                           (self.board_size[1]) + 2), dtype=int)
 
         for i, frame in enumerate(self.state):
             context[i] = frame
