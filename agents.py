@@ -147,7 +147,7 @@ class DoubleDQN(Agent):
             online_model_action = torch.argmax(online_model_pred).item()
             # Second use the target network to determine value of next action
             target_pred = self.target_model(unsqueeze(next_state[idx], 0))
-            discounted_rw = self.gamma * target_pred[online_model_action]
+            discounted_rw = self.gamma * target_pred[0][online_model_action]
             Q_new = reward[idx] + discounted_rw * (1 - game_over[idx])
 
             target[idx][torch.argmax(move[idx]).item()] = Q_new
