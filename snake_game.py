@@ -81,10 +81,12 @@ class SnakeGame:
         self.state = deque(maxlen=frames)
 
         # Initialize the display
-        self.display = pygame.display.set_mode(((board_size[1]+2)*BLOCK_SIZE,
-                                                (board_size[0]+2)*BLOCK_SIZE))
-        pygame.display.set_caption('Snake')
-        self.clock = pygame.time.Clock()
+        if self.display_game:
+            WINDOW = ((board_size[1]+2)*BLOCK_SIZE,
+                      (board_size[0]+2)*BLOCK_SIZE)
+            self.display = pygame.display.set_mode(WINDOW)
+            pygame.display.set_caption('Snake')
+            self.clock = pygame.time.Clock()
         self.reset()
 
     def reset(self):
@@ -207,6 +209,7 @@ class SnakeGame:
         max_frame_threshold = self.max_time_rate * len(self.snake)
         if self.is_collision() or self.frame_iteration > max_frame_threshold:
             self.snake.pop()
+            self.state.append(self._get_game_frame())
             game_over = True
             reward = -10
             return reward, game_over, self.score
@@ -220,8 +223,10 @@ class SnakeGame:
             self.snake.pop()
 
         # 5. update ui and clock
-        self._update_ui()
-        self.clock.tick(SPEED)
+        self.state.append(self._get_game_frame())
+        if self.display_game:
+            self._update_ui()
+            self.clock.tick(SPEED)
         # 6. return game over and score
         return reward, game_over, self.score
 
