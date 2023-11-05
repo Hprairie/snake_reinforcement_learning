@@ -1,6 +1,6 @@
 {
-    "_comments" : "First CNN based DQN model, around the 1000th game the model begins to learn in 6x6 game.",
-    "agent" : "DQN",
+    "_comments" : "CNN based DoubleDQN model",
+    "agent" : "DoubleDQN",
     "board_size" : [6, 6],
     "seed" : null,
     "frames" : 2,

@@ -4,7 +4,7 @@ import torch.nn as nn
 
 
 class Model(nn.Module):
-    def __init__(self, version, load_model=False):
+    def __init__(self, version):
         '''
         Initializes the model. The version numver of the model wanting to be
         created will be passed in as a string. The get_model() function with
@@ -13,7 +13,7 @@ class Model(nn.Module):
         '''
         super().__init__()
         self._version = version
-        self._load_model = load_model  # <- Need to setup Funtionality
+
         # Initialize the model
         self.model = self._get_model()
 
@@ -62,18 +62,36 @@ class Model(nn.Module):
         return X
 
     def save(self, epoch, optimizer_state_dict, loss, path=''):
-        ''''''
+        '''
+        Saves the current model along with the optimizer and other
+        state data. Model and Optimizer weights are stored to the
+        path specificed under the name model_version
+        '''
         PATH = '{}/model_{:s}'.format(path, self._version)
         torch.save({'epoch': epoch,
                     'model_state_dict': self.model.state_dict(),
                     'optimizer_state_dict': optimizer_state_dict,
                     'loss': loss}, PATH)
 
-    def load(self, path, optimizer):
-        ''''''
+    def load(self, path, optimizer=None):
+        '''
+        Loads the weights and baises for both the current model
+        and its optimizer if specified. Also stored loss and epoch
+        of the saved model.
+
+        Returns
+        -------
+
+        epoch : Int
+            The number of games played by saved model
+        loss : Int
+            The loss of the last training step of the
+            loaded model
+        '''
         load_checkpoint = torch.load(path)
+        if optimizer is not None:
+            optimizer.load_state_dict(load_checkpoint['optimizer_state_dict'])
         self.model.load_state_dict(load_checkpoint['model_state_dict'])
-        optimizer.load_state_dict(load_checkpoint['optimizer_state_dict'])
         epoch = load_checkpoint['epoch']
         loss = load_checkpoint['loss']
 

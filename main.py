@@ -2,6 +2,8 @@ import sys
 import agents
 import json
 import snake_game
+import torch
+import random
 
 
 def train(agent, game, epochs):
@@ -34,10 +36,12 @@ def train(agent, game, epochs):
             game.reset()
             current_epoch_count += 1
 
+            # Log record information
             if score > model_logs['record']:
                 model_logs['record'] = score
                 agent.save('models', current_epoch_count, loss)
 
+            # Log Epoch information
             print(f'Game: {current_epoch_count},',
                   f'Score: {score},'
                   f'Record: {model_logs["record"]}')
@@ -55,6 +59,11 @@ if __name__ == '__main__':
     with open('model_config/{:s}.json'.format(version), 'r') as f:
         model_dic = json.load(f)
 
+    # Seed the enviroment if needed
+    if model_dic['seed'] is not None:
+        random.seed(model_dic['seed'])
+        torch.manual_seed(model_dic['seed'])
+
     # Initialize the Game
     game = snake_game.SnakeGame(model_dic['board_size'],
                                 model_dic['frames'],
@@ -62,7 +71,12 @@ if __name__ == '__main__':
                                 model_dic['display_game'],
                                 model_dic['seed'],
                                 model_dic['max_time_rate'])
+
     # Initialize the Agent
-    agent = agents.DQN(version)
+    if model_dic['agent'] == 'DQN':
+        agent = agents.DQN(version)
+    elif model_dic['agent'] == 'DoubleDQN':
+        agent = agents.DoubleDQN(version)
+
     #  Run trainer
     train(agent, game, model_dic['epochs'])

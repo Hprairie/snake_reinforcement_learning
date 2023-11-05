@@ -27,8 +27,17 @@ class EpsilonGreedy:
         return final_move
 
 
+class Boltzmann:
+    def __init__(self, hyperparemeters) -> None:
+        pass
+
+    def get_action(self, agent, state):
+        pass
+
+
 def determine_exploration(exploration_strategy):
     if exploration_strategy['name'] == 'epsilon-greedy':
         strategy = EpsilonGreedy(exploration_strategy)
-
+    elif exploration_strategy['name'] == 'boltzmann':
+        strategy = Boltzmann(exploration_strategy)
     return strategy

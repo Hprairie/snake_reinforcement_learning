@@ -366,6 +366,7 @@ class SnakeGame:
 
 
 if __name__ == "__main__":
+    # Use this only for testing
     game = SnakeGame(board_size=(6, 4))
 
     while (True):
