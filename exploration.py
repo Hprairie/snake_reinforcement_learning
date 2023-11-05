@@ -50,11 +50,16 @@ class EpsilonGreedy:
 
 
 class Boltzmann:
-    def __init__(self, hyperparemeters) -> None:
-        pass
-
     def get_action(self, agent, state):
-        pass
+        final_move = [0, 0, 0]
+        # Get the logits from the model
+        state_tensor = torch.tensor(state, dtype=torch.float)
+        logits = agent.model(torch.unsqueeze(state_tensor, 0))
+        # Create a distribution from logits and sample the distribution
+        action = torch.distributions.Categorical(logits=logits).sample().item()
+        # OHE the action with all moves
+        final_move[action] = 1
+        return final_move
 
 
 def determine_exploration(exploration_strategy):
@@ -63,5 +68,5 @@ def determine_exploration(exploration_strategy):
     elif exploration_strategy['name'] == 'epsilon-greedy':
         strategy = EpsilonGreedy(exploration_strategy)
     elif exploration_strategy['name'] == 'boltzmann':
-        strategy = Boltzmann(exploration_strategy)
+        strategy = Boltzmann()
     return strategy
