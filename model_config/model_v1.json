@@ -3,7 +3,7 @@
     "agent" : "DQN",
     "board_size" : [6, 6],
     "seed" : null,
-    "frames" : 2,
+    "frames" : 4,
     "start_length" : 3,
     "display_game" : true,
     "max_time_rate" : 100,
