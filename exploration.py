@@ -50,6 +50,9 @@ class EpsilonGreedy:
 
 
 class Boltzmann:
+    def __init__(self, hyperparemeters) -> None:
+        self.hyperparameters = hyperparemeters
+
     def get_action(self, agent, state):
         final_move = [0, 0, 0]
         # Get the logits from the model
@@ -60,6 +63,9 @@ class Boltzmann:
         # OHE the action with all moves
         final_move[action] = 1
         return final_move
+
+    def state_dict(self):
+        return self.hyperparameters
 
 
 def determine_exploration(exploration_strategy):
