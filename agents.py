@@ -142,8 +142,12 @@ class DoubleDQN(Agent):
         target = pred.clone()
 
         for idx in range(len(game_over)):
+            # First use the online network to determine which action to take
+            online_model_pred = self.model(unsqueeze(next_state[idx], 0))
+            online_model_action = torch.argmax(online_model_pred).item()
+            # Second use the target network to determine value of next action
             target_pred = self.target_model(unsqueeze(next_state[idx], 0))
-            discounted_rw = self.gamma * torch.max(target_pred)
+            discounted_rw = self.gamma * target_pred[online_model_action]
             Q_new = reward[idx] + discounted_rw * (1 - game_over[idx])
 
             target[idx][torch.argmax(move[idx]).item()] = Q_new
@@ -178,5 +182,21 @@ class DoubleDQN(Agent):
         return loss
 
 
-class PriviligedDQN(Agent):
+class PrioritizedDDQN(Agent):
+    pass
+
+
+class DeulingPDDQN(Agent):
+    pass
+
+
+class NioseyNet(Agent):
+    pass
+
+
+class RainbowQN(Agent):
+    pass
+
+
+class Actor2Critic():
     pass
