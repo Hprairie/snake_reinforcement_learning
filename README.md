@@ -1,4 +1,4 @@
-# Common Reinforcement Learning algorithms implemented for Snake
+# Common Reinforcement Learning algorithms implemented on Snake
 
 Common reinforcement learning algorithms are applied to the game Snake. Some of my favorite runs are displayed below.
 
