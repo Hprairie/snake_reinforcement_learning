@@ -67,7 +67,7 @@ class Model(nn.Module):
         state data. Model and Optimizer weights are stored to the
         path specificed under the name model_version
         '''
-        PATH = '{}/model_{:s}'.format(path, self._version)
+        PATH = '{}/{:s}'.format(path, self._version)
         torch.save({'epoch': epoch,
                     'model_state_dict': self.model.state_dict(),
                     'optimizer_state_dict': optimizer_state_dict,
@@ -88,7 +88,8 @@ class Model(nn.Module):
             The loss of the last training step of the
             loaded model
         '''
-        load_checkpoint = torch.load(path)
+        PATH = '{}/{:s}'.format(path, self._version)
+        load_checkpoint = torch.load(PATH)
         if optimizer is not None:
             optimizer.load_state_dict(load_checkpoint['optimizer_state_dict'])
         self.model.load_state_dict(load_checkpoint['model_state_dict'])

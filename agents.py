@@ -28,8 +28,8 @@ class Agent():
     def get_action(self, state):
         return self.es.get_action(self, state)
 
-    def save(self, path, epoch, loss):
-        self.model.save(epoch, self.optimizer, loss, path)
+    def save_baseline(self, path, epoch, loss):
+        self.model.save(epoch, self.optimizer.state_dict(), loss, path)
 
 
 class DQN(Agent):
@@ -47,6 +47,7 @@ class DQN(Agent):
         self.C = model_dic['C']
         self.batch_size = model_dic['batch_size']
         self.steps = 0
+        self.version = version
 
         # Setup Buffer, Optimizer, Criterion, and Exploration Strategy
         self.buffer = deque(maxlen=model_dic['buffer_size'])
@@ -104,6 +105,16 @@ class DQN(Agent):
 
         return loss
 
+    def save_training(self, path, epoch, loss):
+        PATH = '{}/model_{:s}'.format(path, self._version)
+        torch.save({'epoch': epoch,
+                    'online_model_state_dict': self.model.state_dict(),
+                    'target_model_state_dict': self.target_model.state_dict(),
+                    'optimizer_state_dict': self.optimizer.state_dict(),
+                    'buffer': self.buffer,
+                    'exploration_state': self.es.state_dict(),
+                    'loss': loss}, PATH)
+
 
 class DoubleDQN(Agent):
     def __init__(self, version) -> None:
@@ -120,6 +131,7 @@ class DoubleDQN(Agent):
         self.C = model_dic['C']
         self.batch_size = model_dic['batch_size']
         self.steps = 0
+        self.version = version
 
         # Setup Buffer, Optimizer, Criterion, and Exploration Strategy
         self.buffer = deque(maxlen=model_dic['buffer_size'])
@@ -180,6 +192,16 @@ class DoubleDQN(Agent):
         loss = self._train_step(state, action, reward, next_state, game_over)
 
         return loss
+
+    def save_training(self, path, epoch, loss):
+        PATH = '{}/model_{:s}'.format(path, self._version)
+        torch.save({'epoch': epoch,
+                    'online_model_state_dict': self.model.state_dict(),
+                    'target_model_state_dict': self.target_model.state_dict(),
+                    'optimizer_state_dict': self.optimizer.state_dict(),
+                    'buffer': self.buffer,
+                    'exploration_state': self.es.state_dict(),
+                    'loss': loss}, PATH)
 
 
 class PrioritizedDDQN(Agent):

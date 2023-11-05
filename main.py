@@ -4,6 +4,7 @@ import json
 import snake_game
 import torch
 import random
+from logger import save_training_logs
 
 
 def train(agent, game, epochs):
@@ -39,7 +40,7 @@ def train(agent, game, epochs):
             # Log record information
             if score > model_logs['record']:
                 model_logs['record'] = score
-                agent.save('models', current_epoch_count, loss)
+                agent.save_baseline('models', current_epoch_count, loss)
 
             # Log Epoch information
             print(f'Game: {current_epoch_count},',
@@ -49,8 +50,11 @@ def train(agent, game, epochs):
             # Add Results to Logs
             total_score += score
             model_logs['score'].append(score)
+            model_logs['game'].append(current_epoch_count)
             model_logs['mean_score'].append(total_score / current_epoch_count)
             model_logs
+
+    save_training_logs(model_logs, agent.version)
 
 
 if __name__ == '__main__':
