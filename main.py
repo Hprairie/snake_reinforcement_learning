@@ -12,6 +12,7 @@ def train(agent, game, epochs):
     model_logs = {'score': [],
                   'mean_score': [],
                   'game': [],
+                  'network_name': agent.name,
                   'record': 0}
     total_score = 0
     current_epoch_count = 0

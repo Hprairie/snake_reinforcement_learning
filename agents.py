@@ -48,6 +48,7 @@ class DQN(Agent):
         self.batch_size = model_dic['batch_size']
         self.steps = 0
         self.version = version
+        self.name = "DQN"
 
         # Setup Buffer, Optimizer, Criterion, and Exploration Strategy
         self.buffer = deque(maxlen=model_dic['buffer_size'])
@@ -132,6 +133,7 @@ class DoubleDQN(Agent):
         self.batch_size = model_dic['batch_size']
         self.steps = 0
         self.version = version
+        self.name = "DoubleDQN"
 
         # Setup Buffer, Optimizer, Criterion, and Exploration Strategy
         self.buffer = deque(maxlen=model_dic['buffer_size'])
