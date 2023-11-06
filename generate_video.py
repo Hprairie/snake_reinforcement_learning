@@ -10,8 +10,25 @@ from model import Model
 from snake_game import SnakeGame
 
 
-def create_video(game, model):
-    pass
+def play_game(game, model):
+    for iteration in range(10):
+        game_over = False
+        while not game_over:
+            # Get current state
+            state = game.get_game_state()
+
+            # Determine action
+            final_move = [0, 0, 0]
+
+            # Generate next move only from model
+            state_tensor = torch.tensor(state, dtype=torch.float)
+            prediction = model(torch.unsqueeze(state_tensor, 0))
+            move = torch.argmax(prediction).item()
+            final_move[move] = 1
+
+            # Pass action to game to generate tokens
+            reward, game_over, score = game.play_step(final_move)
+        game.reset()
 
 
 if __name__ == "__main__":
@@ -46,4 +63,4 @@ if __name__ == "__main__":
     print(f'Loaded model trained on {epoch} games.')
 
     # Run create_video() to capture videos
-    create_video(game, model)
+    play_game(game, model)
