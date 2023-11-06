@@ -159,5 +159,5 @@ def determine_exploration(exploration_strategy):
     elif exploration_strategy['name'] == 'epsilon-greedy':
         strategy = EpsilonGreedy(exploration_strategy)
     elif exploration_strategy['name'] == 'boltzmann':
-        strategy = Boltzmann()
+        strategy = Boltzmann(exploration_strategy)
     return strategy
