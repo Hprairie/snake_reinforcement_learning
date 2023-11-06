@@ -1,5 +1,5 @@
 {
-    "_comments" : "CNN based DoubleDQN model with epsilon greedy",
+    "_comments" : "CNN based DoubleDQN model with Boltzmann Exploration",
     "agent" : "DoubleDQN",
     "board_size" : [6, 6],
     "seed" : null,
@@ -18,10 +18,7 @@
     "C" : 1000,
     "epochs": 5000,
     "exploration_strategy" : {
-        "name" : "epsilon-greedy",
-        "epsilon" : 1,
-        "epsilon_threshold" : 0.001,
-        "epsilon_decay" : 0.0002
+        "name" : "boltzmann"
     },
     "model":{
         "Conv2D":{
