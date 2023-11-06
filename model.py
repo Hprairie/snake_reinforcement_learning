@@ -6,8 +6,8 @@ import torch.nn as nn
 class Model(nn.Module):
     def __init__(self, version):
         '''
-        Initializes the model. The version numver of the model wanting to be
-        created will be passed in as a string. The get_model() function with
+        Initializes the model. The version number of the model wanting to be
+        created will be passed in as a string. The get_model() function will
         then be called which will parse the JSON file and create the model
         for the agent.
         '''
