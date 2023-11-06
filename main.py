@@ -18,6 +18,7 @@ def train(agent, game, epochs):
     current_epoch_count = 0
 
     while current_epoch_count < epochs:
+        sys.getrecursionlimit()
         # get current state
         current_state = game.get_game_state()
 
