@@ -114,7 +114,7 @@ class EpsilonGreedy:
 class Boltzmann:
     '''
     Uses Boltzman exploration/exploitation strategy.
-    
+
     Parameters
     ----------
     hyperparameters : dict
@@ -160,4 +160,7 @@ def determine_exploration(exploration_strategy):
         strategy = EpsilonGreedy(exploration_strategy)
     elif exploration_strategy['name'] == 'boltzmann':
         strategy = Boltzmann(exploration_strategy)
+    else:
+        raise Exception('Unknown exploration passed. Check naming convention.')
+
     return strategy
