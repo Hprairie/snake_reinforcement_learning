@@ -5,11 +5,11 @@ Common reinforcement learning algorithms are applied to the game Snake. Some of 
 
 ## Code Structure
 
-There are 4 main partitions of the projects which allow for using JSON files to essentially pick and choose different algorithms, models, exploration strategies, and board states within the code. I will outline the structure for each of these parts along with their encapsulation. I will also explain how to add in additional algorithms, models, exploration strategies, and board states if interested.
+There are 4 main partitions of the projects which allow for using JSON files to essentially pick and choose different algorithms, models, exploration strategies, and board states within the code. I will outline the structure for each of these parts along with their encapsulation. I will also explain how to add additional algorithms, models, exploration strategies, and board states if interested.
 
 ### Models
 
-Whenever a model is needed within the project the Model() class in model.py is called, which parses the JSON parameters of the model version passed in at runtime. When constructing the model to appends blocks to a sequential model in PyTorch, which enables everything about an expirement to be encapsulated in the JSON file. For example when creating a CNN model for a DQN, we will assign the topology of the network to the keyword `model`.
+Whenever a model is needed within the project the Model() class in model.py is called, which parses the JSON parameters of the model version passed in at runtime. When constructing the model appends blocks to a sequential model in PyTorch, which enables everything about an experiment to be encapsulated in the JSON file. For example, when creating a CNN model for a DQN, we will assign the topology of the network to the keyword `model`.
 
 ```JSON
     "model":{
@@ -58,6 +58,6 @@ Order is important in the JSON file and runtime errors will be thrown if the mod
 
 ## Acknowledgments
 
-I would like to acknowledge [this repository](https://github.com/patrickloeber/snake-ai-pytorch) which I originally used to get started with reinforcement learning. The basic structure of the snake game was lifted from the repository, however many things were changed in order to improve the display of the game and also to expand the context window to the entire board frame, plus additional board frames. Furthermore, the structure of this codebase was heavily inspired by [this repository](https://github.com/DragonWarrior15/snake-rl), where JSON files were parsed inorder to control the model parameters. I do want to note that almost all of this code was still written by me and inspiration was just lifted from these sources.
+I would like to acknowledge [this repository](https://github.com/patrickloeber/snake-ai-pytorch) which I originally used to get started with reinforcement learning. The basic structure of the snake game was lifted from the repository, however many things were changed in order to improve the display of the game and also to expand the context window to the entire board frame, plus additional board frames. Furthermore, the structure of this codebase was heavily inspired by [this repository](https://github.com/DragonWarrior15/snake-rl), where JSON files were parsed in order to control the model parameters. I do want to note that 98% of this code was still written by me and inspiration was just lifted from these sources.
 
-### Important Papers used in for these Reinforcement Learning Algorithms
+### Important Papers used for this Project
