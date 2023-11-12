@@ -83,6 +83,8 @@ if __name__ == '__main__':
         agent = agents.DQN(version)
     elif model_dic['agent'] == 'DoubleDQN':
         agent = agents.DoubleDQN(version)
+    elif model_dic['agent'] == 'PrioritizedDDQN':
+        agent = agents.PrioritizedDDQN(version)
 
     #  Run trainer
     train(agent, game, model_dic['epochs'])

@@ -81,7 +81,7 @@ class EpsilonGreedy:
         '''
         # Decay Epsilon every time we take an action
         if self.epsilon > self.epsilon_threshold:
-            self.epsilon -= self.epsilon_decay
+            self.epsilon = max(self.epsilon_threshold, self.epsilon - self.epsilon_decay)
 
         final_move = [0, 0, 0]
 
