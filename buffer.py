@@ -71,9 +71,6 @@ class PrioritizedReplayBuffer:
         distribution = np.array(self.priority_sum[self.capacity:self.capacity + self.size]) / self.priority_sum[1]
         index_list = list(range(self.size))
 
-        # Ensure distribution sums to 1
-        assert sum(distribution) == 1.0
-
         # Sample from the list (index, element)
         if self.size < self.batch_size:
             batch_size = self.size

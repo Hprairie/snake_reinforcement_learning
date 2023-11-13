@@ -299,10 +299,9 @@ class PrioritizedDDQN(Agent):
             # Update the target
             target[idx][torch.argmax(move[idx]).item()] = Q_new
 
-    
+
         self.optimizer.zero_grad()
         loss = self.criterion(target, pred, weights)
-        print(loss)
         loss.backward()
 
         # Incrimenet steps

@@ -4,4 +4,4 @@ class weighted_MSELoss(nn.Module):
     def __init__(self):
         super().__init__()
     def forward(self,inputs,targets,weights):
-        return (((inputs - targets)**2 ) * weights).mean()
+        return (((inputs - targets)**2 ).mean(1) * weights).mean()
