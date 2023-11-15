@@ -15,6 +15,7 @@ class Model(nn.Module):
         self._version = version
 
         # Initialize the model
+        self.model_type = 'Single'
         self.model = self._get_model()
 
     def _get_model(self):
@@ -34,7 +35,10 @@ class Model(nn.Module):
         with open('model_config/{:s}.json'.format(self._version), 'r') as f:
             model_dic = json.load(f)
 
+
         modules = []
+        state = []
+        action = []
         for layer in model_dic['model']:
             layer_hyperparameters = model_dic['model'][layer]
             if ('Conv2D' in layer):
@@ -45,8 +49,28 @@ class Model(nn.Module):
                 modules.append(nn.Linear(**layer_hyperparameters))
             elif ('ReLU' in layer):
                 modules.append(nn.ReLU())
-
-        return nn.Sequential(*modules)
+            elif ('Deuling' in layer):
+                self.model_type = 'Deuling'
+                # Create the State Head
+                for state_layer in layer_hyperparameters['State']:
+                    state_layer_hyperparameters = layer_hyperparameters['State'][state_layer]
+                    if ('Dense' in layer):
+                        state.append(nn.Linear(**state_layer_hyperparameters))
+                    elif ('ReLU' in layer):
+                        state.append(nn.ReLU())
+                # Create the Action Head
+                for action_layer in layer['Action']:
+                    action_layer_hyperparameters = layer_hyperparameters['Action'][action_layer]
+                    if ('Dense' in layer):
+                        action.append(nn.Linear(**action_layer_hyperparameters))
+                    elif ('ReLU' in layer):
+                        action.append(nn.ReLU())
+        if self.model_type is 'Single':
+            return nn.Sequential(*modules)
+        else:
+            return {'Head': nn.Sequential(*modules), 
+                    'State': nn.Sequential(*state), 
+                    'Action': nn.Sequential(*action)}
 
     def forward(self, X):
         '''
@@ -58,8 +82,21 @@ class Model(nn.Module):
         output : Tensor
             Return tensor in the shape of (batch_size, output_size)
         '''
-        X = self.model(X)
-        return X
+        if self.model_type is 'Single':
+            X = self.model(X)
+            return X
+        elif self.model_type is 'Deuling':
+            # Pass through Single Head
+            X = self.model['Head'](X)
+
+            # Split into Deuling State Action Heads
+            state_value = self.model['State'](X)
+            action_value = self.model['Action'](X)
+
+            # Normalize the Action Head
+            action_value = action_value - action_value.mean(dim=-1, keepdim=True)
+
+            return state_value + action_value
 
     def save(self, epoch, optimizer_state_dict, loss, path=''):
         '''
@@ -67,11 +104,22 @@ class Model(nn.Module):
         state data. Model and Optimizer weights are stored to the
         path specificed under the name model_version
         '''
-        PATH = '{}/{:s}'.format(path, self._version)
-        torch.save({'epoch': epoch,
-                    'model_state_dict': self.model.state_dict(),
-                    'optimizer_state_dict': optimizer_state_dict,
-                    'loss': loss}, PATH)
+        if self.model_type is 'Single':
+            PATH = '{}/{:s}'.format(path, self._version)
+            torch.save({'epoch': epoch,
+                        'model_state_dict': self.model.state_dict(),
+                        'optimizer_state_dict': optimizer_state_dict,
+                        'model_type': 'Single',
+                        'loss': loss}, PATH)
+        
+        elif self.model_type is 'Deuling':
+            PATH = '{}/{:s}'.format(path, self._version)
+            torch.save({'epoch': epoch,
+                        'model_state_dict': {idx: self.model[idx].state_dict() for idx in self.model},
+                        'optimizer_state_dict': optimizer_state_dict,
+                        'model_type': 'Deuling',
+                        'loss': loss}, PATH)
+
 
     def load(self, path, optimizer=None):
         '''
@@ -92,7 +140,11 @@ class Model(nn.Module):
         load_checkpoint = torch.load(PATH)
         if optimizer is not None:
             optimizer.load_state_dict(load_checkpoint['optimizer_state_dict'])
-        self.model.load_state_dict(load_checkpoint['model_state_dict'])
+        if load_checkpoint['model_type'] is 'Single':
+            self.model.load_state_dict(load_checkpoint['model_state_dict'])
+        elif load_checkpoint['model_type'] is 'Deuling':
+            ld_model = load_checkpoint['model_state_dict']
+            self.model = {self.model[idx].load_state_dict(ld_model[idx]) for idx in self.model}
         epoch = load_checkpoint['epoch']
         loss = load_checkpoint['loss']
 
