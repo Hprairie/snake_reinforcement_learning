@@ -7,6 +7,8 @@ Common reinforcement learning algorithms are applied to the game Snake. Some of 
 
 There are 4 main partitions of the projects which allow for using JSON files to essentially pick and choose different algorithms, models, exploration strategies, and board states within the code. I will outline the structure for each of these parts along with their encapsulation. I will also explain how to add additional algorithms, models, exploration strategies, and board states if interested.
 
+<center>
+
 | Agent            | Description | Policy Type | Paper |
 |------------------|-------------|-------------|-------|
 | DQN              |             |             |       |
@@ -20,6 +22,7 @@ There are 4 main partitions of the projects which allow for using JSON files to 
 | Actor2Critic     |             |             |       |
 | Actor3Critic     |             |             |       |
 
+<\center>
 
 ### Models
 
