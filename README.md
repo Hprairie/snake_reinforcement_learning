@@ -7,6 +7,23 @@ Common reinforcement learning algorithms are applied to the game Snake. Some of 
 
 There are 4 main partitions of the projects which allow for using JSON files to essentially pick and choose different algorithms, models, exploration strategies, and board states within the code. I will outline the structure for each of these parts along with their encapsulation. I will also explain how to add additional algorithms, models, exploration strategies, and board states if interested.
 
+<center>
+
+| Agent            | Description | Policy Type | Paper |
+|------------------|-------------|-------------|-------|
+| DQN              |             |             |       |
+| Double DQN       |             |             |       |
+| Prioritized DDQN |             |             |       |
+| Dueling PDDQN    |             |             |       |
+| MultiStep DPDDQN |             |             |       |
+| NoiseyNet        |             |             |       |
+| Distributional QL|             |             |       |
+| RainbowDQN       |             |             |       |
+| Actor2Critic     |             |             |       |
+| Actor3Critic     |             |             |       |
+
+</center>
+
 ### Models
 
 Whenever a model is needed within the project the Model() class in model.py is called, which parses the JSON parameters of the model version passed in at runtime. When constructing the model appends blocks to a sequential model in PyTorch, which enables everything about an experiment to be encapsulated in the JSON file. For example, when creating a CNN model for a DQN, we will assign the topology of the network to the keyword `model`.
