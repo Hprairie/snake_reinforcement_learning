@@ -22,7 +22,7 @@ There are 4 main partitions of the projects which allow for using JSON files to 
 | Actor2Critic     |             |             |       |
 | Actor3Critic     |             |             |       |
 
-<\center>
+</center>
 
 ### Models
 
