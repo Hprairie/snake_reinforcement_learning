@@ -1,0 +1,74 @@
+{
+    "_comments" : "CNN based Prioritized Deuling DoubleDQN model with Epsilon Greedy Exploration",
+    "agent" : "PrioritizedDDQN",
+    "board_size" : [6, 6],
+    "seed" : null,
+    "frames" : 4,
+    "start_length" : 3,
+    "display_game" : true,
+    "max_time_rate" : 100,
+    "supervised" : 0,
+    "obstacles" : 0,
+    "buffer" : {
+        "name" : "Priority",
+        "buffer_size" : 60000,
+        "batch_size" : 32,
+        "alpha" : 0.6,
+        "beta" : 0.4,
+        "beta_max" : 1,
+        "beta_growth" : 0.0002
+    },
+    "gamma" : 0.9,
+    "learning_rate" : 0.0001,
+    "optimizer" : "Adam",
+    "criterion" : "WeightedMSE",
+    "C" : 1000,
+    "epochs": 5000,
+    "exploration_strategy" : {
+        "name" : "epsilon-greedy",
+        "epsilon" : 1,
+        "epsilon_threshold" : 0.001,
+        "epsilon_decay" : 0.0002
+    },
+    "model":{
+        "Conv2D":{
+            "in_channels" : 4,
+            "out_channels" : 32,
+            "kernel_size" : [2,2],
+            "stride" : 1
+        },
+        "ReLU" : {},
+        "Conv2D_1":{
+            "in_channels" : 32,
+            "out_channels" : 32,
+            "kernel_size" : [2,2],
+            "stride" : 1
+        },
+        "ReLU_2" : {},
+        "Flatten":{},
+        "Deuling":{
+            "State": {
+                "Dense":{
+                    "in_features" : 1152,
+                    "out_features" : 128
+                },
+                "ReLU_3" : {},
+                "Dense2":{
+                    "in_features" : 128,
+                    "out_features" : 1
+                }
+            },
+            "Action" : {
+                "Dense":{
+                    "in_features" : 1152,
+                    "out_features" : 128
+                },
+                "ReLU_3" : {},
+                "Dense2":{
+                    "in_features" : 128,
+                    "out_features" : 3
+                }
+            }
+        }
+    }
+}

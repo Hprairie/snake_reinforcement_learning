@@ -329,33 +329,7 @@ class PrioritizedDDQN(Agent):
 
         return loss
 
-    def save_training(self, path, epoch, loss):
-        PATH = '{}/model_{:s}'.format(path, self._version)
-        torch.save({'epoch': epoch,
-                    'online_state_dict': self.model.state_dict(),
-                    'target_state_dict': self.target_model.state_dict(),
-                    'optimizer_state_dict': self.optimizer.state_dict(),
-                    'buffer': self.buffer,
-                    'exploration_state': self.es.state_dict(),
-                    'loss': loss}, PATH)
-
-    def load_training(self, path):
-        PATH = '{}/{:s}'.format(path, self._version)
-        load_checkpoint = torch.load(PATH)
-
-        epoch = load_checkpoint['epoch']
-        self.model.load_state_dict(load_checkpoint['online_state_dict'])
-        self.target_model.load_state_dict(load_checkpoint['target_state_dict'])
-        self.optimizer.load_state_dict(load_checkpoint['optimizer_state_dict'])
-        self.buffer = load_checkpoint['buffer'] # This doesn't work fix it
-        self.es = determine_exploration(load_checkpoint['exploration_state'])
-        loss = load_checkpoint['loss']
-
-        return epoch, loss
-
-
-class DeulingPDDQN(PrioritizedDDQN):
-    def save_training(self, path, epoch, loss):
+    def save_training(self, path, epoch, loss): # Not working with Deuling Architecture
         PATH = '{}/model_{:s}'.format(path, self._version)
         torch.save({'epoch': epoch,
                     'online_state_dict': self.model.state_dict(),

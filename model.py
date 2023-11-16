@@ -68,8 +68,8 @@ class Model(nn.Module):
         if self.model_type is 'Single':
             return nn.Sequential(*modules)
         else:
-            return {'Head': nn.Sequential(*modules), 
-                    'State': nn.Sequential(*state), 
+            return {'Head': nn.Sequential(*modules),
+                    'State': nn.Sequential(*state),
                     'Action': nn.Sequential(*action)}
 
     def forward(self, X):
