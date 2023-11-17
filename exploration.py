@@ -16,11 +16,14 @@ class Zero:
         Returns None as there are no internal state to be saved for this
         strategy.
     '''
+    def __init__(self) -> None:
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     def get_action(self, agent, state):
         final_move = [0, 0, 0]
 
         # Generate next move only from model
-        state_tensor = torch.tensor(state, dtype=torch.float)
+        state_tensor = torch.tensor(state, dtype=torch.float).to(self.device)
         prediction = agent.model(torch.unsqueeze(state_tensor, 0))
         move = torch.argmax(prediction).item()
         final_move[move] = 1
@@ -61,6 +64,7 @@ class EpsilonGreedy:
         self.epsilon = hyperparemeters['epsilon']
         self.epsilon_threshold = hyperparemeters['epsilon_threshold']
         self.epsilon_decay = hyperparemeters['epsilon_decay']
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def get_action(self, agent, state):
         '''
@@ -89,7 +93,7 @@ class EpsilonGreedy:
             move = random.randint(0, 2)
             final_move[move] = 1
         else:
-            state_tensor = torch.tensor(state, dtype=torch.float)
+            state_tensor = torch.tensor(state, dtype=torch.float).to(self.device)
             prediction = agent.model(torch.unsqueeze(state_tensor, 0))
             move = torch.argmax(prediction).item()
             final_move[move] = 1
@@ -129,12 +133,13 @@ class Boltzmann:
         Returns the hyperparameters dictionary.
     '''
     def __init__(self, hyperparemeters) -> None:
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.hyperparameters = hyperparemeters
 
     def get_action(self, agent, state):
         final_move = [0, 0, 0]
         # Get the logits from the model
-        state_tensor = torch.tensor(state, dtype=torch.float)
+        state_tensor = torch.tensor(state, dtype=torch.float).to(self.device)
         logits = agent.model(torch.unsqueeze(state_tensor, 0))
         # Create a distribution from logits and sample the distribution
         action = torch.distributions.Categorical(logits=logits).sample().item()

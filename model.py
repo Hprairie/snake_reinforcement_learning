@@ -68,7 +68,6 @@ class Model(nn.Module):
         if self.model_type == 'Single':
             return nn.Sequential(*modules)
         else:
-            print(state,action,modules)
             return nn.ParameterDict({'Head': nn.Sequential(*modules),
                                      'State': nn.Sequential(*state),
                                      'Action': nn.Sequential(*action)})
@@ -84,12 +83,13 @@ class Model(nn.Module):
             Return tensor in the shape of (batch_size, output_size)
         '''
         if self.model_type == 'Single':
+            # print(next(self.model.parameters()).device) 
+            # print(X.device)
             X = self.model(X)
             return X
         elif self.model_type == 'Deuling':
             # Pass through Single Head
             X = self.model['Head'](X)
-
 
             # Split into Deuling State Action Heads
             state_value = self.model['State'](X)

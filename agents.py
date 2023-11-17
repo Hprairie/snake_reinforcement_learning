@@ -244,9 +244,13 @@ class PrioritizedDDQN(Agent):
         with open('model_config/{:s}.json'.format(version), 'r') as f:
             model_dic = json.load(f)
 
+        # Check if CUDA is avilable
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f'Using {self.device} to train the model!')
+
         # Create training and target models
-        self.model = Model(version)
-        self.target_model = copy.deepcopy(self.model)
+        self.model = Model(version).to(self.device)
+        self.target_model = copy.deepcopy(self.model).to(self.device)
 
         # Setup Training Hyperparameters
         self.gamma = model_dic['gamma']
@@ -264,12 +268,12 @@ class PrioritizedDDQN(Agent):
 
     def _train_step(self, current_state, move, reward, next_state, game_over, weights):
         ''''''
-        current_state = torch.tensor(current_state, dtype=torch.float)
-        move = torch.tensor(move, dtype=torch.float)
-        reward = torch.tensor(reward, dtype=torch.float)
-        next_state = torch.tensor(next_state, dtype=torch.float)
-        game_over = torch.tensor(game_over, dtype=torch.float)
-        weights = torch.tensor(weights, dtype=torch.float)
+        current_state = torch.tensor(current_state, dtype=torch.float).to(self.device)
+        move = torch.tensor(move, dtype=torch.float).to(self.device)
+        reward = torch.tensor(reward, dtype=torch.float).to(self.device)
+        next_state = torch.tensor(next_state, dtype=torch.float).to(self.device)
+        game_over = torch.tensor(game_over, dtype=torch.float).to(self.device)
+        weights = torch.tensor(weights, dtype=torch.float).to(self.device)
 
         # Predict Q values with current state
         pred = self.model(current_state)
