@@ -1,16 +1,18 @@
 # Common Reinforcement Learning algorithms implemented on Snake
 
 Common reinforcement learning algorithms are applied to the game Snake. Some of my favorite runs are displayed below.
-<div style="display: flex; justify-content: space-around;">
-    <div align="center">
-        <img width="338" height="338" src="model_videos/model_v2.gif" alt="model v2 DoubleDQN"><br>
-        Double DQN
-    </div>
-    <div align="center">
-        <img width="338" height="338" src="model_videos/model_v2.gif" alt="model v2 DoubleDQN"><br>
-        Double DQN
-    </div>
-</div>
+<table border="0">
+    <tr>
+        <td align="center">
+            <img width="338" height="338" src="model_videos/model_v2.gif" alt="model v2 DoubleDQN"><br>
+            Double DQN
+        </td>
+        <td align="center">
+            <img width="338" height="338" src="model_videos/model_v2.gif" alt="model v2 DoubleDQN"><br>
+            Double DQN
+        </td>
+    </tr>
+</table>
 
 ## Code Structure
 
