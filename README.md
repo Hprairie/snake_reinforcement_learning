@@ -1,39 +1,93 @@
 # Common Reinforcement Learning algorithms implemented on Snake
 
 Common reinforcement learning algorithms are applied to the game Snake. Some of my favorite runs are displayed below.
-<table border="0">
-    <tr>
-        <td align="center">
+
+<table align="center" style="border:0px solid white; width:100%;">
+    <tr style="border:0px">
+        <td align="center" style="border:0px; width:33.33%">
             <img width="338" height="338" src="model_videos/model_v2.gif" alt="model v2 DoubleDQN"><br>
             Double DQN
         </td>
-        <td align="center">
+        <td align="center" style="border:0px; width:33.33%">
             <img width="338" height="338" src="model_videos/model_v2.gif" alt="model v2 DoubleDQN"><br>
             Double DQN
         </td>
     </tr>
 </table>
 
+
 ## Code Structure
 
 There are four main partitions of the projects which allow for using JSON files to essentially pick and choose different algorithms, models, exploration strategies, and board states within the code. I will outline the structure for each of these parts along with their encapsulation. I will also explain how to add additional algorithms, models, exploration strategies, and board states if interested.
 
-<p align="center" style="width: 338px; margin: auto;">
-
-| Agent              | Description | Policy Type | Paper |
-|--------------------|-------------|-------------|-------|
-| DQN                |             | Off-Policy  |       |
-| Double DQN         |             | Off-Policy  |       |
-| Prioritized DDQN   |             | Off-Policy  |       |
-| Dueling PDDQN      |             | Off-Policy  |       |
-| MultiStep DPDDQN   |             | Off-Policy  |       |
-| NoiseyNet          |             | Off-Policy  |       |
-| Distributional DQN |             | Off-Policy  |       |
-| RainbowDQN         |             | Off-Policy  |       |
-| Actor2Critic       |             | On-Policy   |       |
-| Actor3Critic       |             | On-Policy   |       |
-
-</p>
+<table align="center">
+    <tr>
+        <th>Agent</th>
+        <th>Description</th>
+        <th>Policy Type</th>
+        <th>Paper</th>
+    </tr>
+    <tr>
+        <td>DQN</td>
+        <td></td>
+        <td>Off-Policy</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Double DQN</td>
+        <td></td>
+        <td>Off-Policy</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Prioritized DDQN</td>
+        <td></td>
+        <td>Off-Policy</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Dueling PDDQN</td>
+        <td></td>
+        <td>Off-Policy</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>MultiStep DPDDQN</td>
+        <td></td>
+        <td>Off-Policy</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>NoiseyNet</td>
+        <td></td>
+        <td>Off-Policy</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Distributional DQN</td>
+        <td></td>
+        <td>Off-Policy</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>RainbowDQN</td>
+        <td></td>
+        <td>Off-Policy</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Actor2Critic</td>
+        <td></td>
+        <td>On-Policy</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Actor3Critic</td>
+        <td></td>
+        <td>On-Policy</td>
+        <td></td>
+    </tr>
+</table>
 
 ### Models
 
