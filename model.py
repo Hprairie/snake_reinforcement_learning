@@ -1,6 +1,8 @@
 import torch
 import json
+import math
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class Model(nn.Module):
@@ -49,6 +51,11 @@ class Model(nn.Module):
                 modules.append(nn.Linear(**layer_hyperparameters))
             elif ('ReLU' in layer):
                 modules.append(nn.ReLU())
+            elif ('Noisy' in layer):
+                if ('Factorized' in layer):
+                    modules.append(FactorizedNoisyLinear(**layer_hyperparameters))
+                else:
+                    modules.append(NoisyLinear(**layer_hyperparameters))
             elif ('Deuling' in layer):
                 self.model_type = 'Deuling'
                 # Create the State Head
@@ -58,6 +65,11 @@ class Model(nn.Module):
                         state.append(nn.Linear(**state_layer_hyperparameters))
                     elif ('ReLU' in state_layer):
                         state.append(nn.ReLU())
+                    elif ('Noisy' in state_layer):
+                        if ('Factorized' in state_layer):
+                            state.append(FactorizedNoisyLinear(**state_layer_hyperparameters))
+                        else:
+                            state.append(NoisyLinear(**state_layer_hyperparameters))
                 # Create the Action Head
                 for action_layer in layer_hyperparameters['Action']:
                     action_layer_hyperparameters = layer_hyperparameters['Action'][action_layer]
@@ -65,10 +77,14 @@ class Model(nn.Module):
                         action.append(nn.Linear(**action_layer_hyperparameters))
                     elif ('ReLU' in action_layer):
                         action.append(nn.ReLU())
+                    elif ('Noisy' in action_layer):
+                        if ('Factorized' in action_layer):
+                            action.append(FactorizedNoisyLinear(**action_layer_hyperparameters))
+                        else:
+                            action.append(NoisyLinear(**action_layer_hyperparameters))
         if self.model_type == 'Single':
             return nn.Sequential(*modules)
         else:
-            print(state,action,modules)
             return nn.ParameterDict({'Head': nn.Sequential(*modules),
                                      'State': nn.Sequential(*state),
                                      'Action': nn.Sequential(*action)})
@@ -151,3 +167,133 @@ class Model(nn.Module):
         loss = load_checkpoint['loss']
 
         return epoch, loss
+
+
+class FactorizedNoisyLinear(nn.Module):
+    def __init__(self, in_features, out_features, sigma_init=0.5, bias=True):
+        torch.autograd.set_detect_anomaly(True)
+        super(FactorizedNoisyLinear, self).__init__()
+        # Save Hyperparameters for reset_parameters()
+        self.in_features = in_features
+        self.out_features = out_features
+        self.sigma_init = sigma_init
+        self.bias = bias
+
+        # Define weight of the linear layer
+        self.mu_w = nn.Parameter(torch.Tensor(out_features, in_features))
+        self.sigma_w = nn.Parameter(torch.Tensor(out_features, in_features))
+        self.register_buffer('epsilon_sigma', torch.Tensor(out_features, in_features))
+
+        # Define the bias of a linear layer
+        if bias:
+            self.mu_b = nn.Parameter(torch.Tensor(out_features))
+            self.sigma_b = nn.Parameter(torch.Tensor(out_features))
+            self.register_buffer('epsilon_bias', torch.Tensor(out_features))
+
+        # Init parameters (Described in paper)
+        self.reset_parameters()
+        self.reset_noise()
+
+    def forward(self, X):
+        # Reset the noise at each sample
+        self.reset_noise()
+
+        # Create weight
+        weight = self.mu_w + (self.sigma_w * self.epsilon_sigma)
+        if self.bias:
+            bias = self.mu_b + (self.sigma_b * self.epsilon_bias) 
+        
+        
+        # Forward pass the data through weight and bias
+        if self.bias:
+            X = F.linear(X, weight, bias)
+        else:
+            X = F.linear(X, weight)
+        return X
+
+    def reset_noise(self):
+        def scale(size):
+            noise = torch.randn(size)
+            return noise.sign().mul(noise.abs().sqrt())
+        
+        # Create noise vectors
+        epsilon_in = scale(self.in_features)
+        epsilon_out = scale(self.out_features)
+
+        # Save noise vectors
+        self.epsilon_sigma = torch.outer(epsilon_out, epsilon_in)
+        if self.bias:
+            self.epsilon_bias = epsilon_out
+
+    def reset_parameters(self):
+        # Create distributions to sample mu and sigma
+        mu_range = 1 / math.sqrt(self.in_features)
+        sigma_range = self.sigma_init / math.sqrt(self.in_features)
+
+        # Set up weight mu and sigma from distribution
+        self.mu_w.data.uniform_(-mu_range, mu_range)
+        self.sigma_w.data.uniform_(-sigma_range, sigma_range)
+        # Set up bias mu and sigma from distribution
+        if self.bias:
+            self.mu_b.data.uniform_(-mu_range, mu_range)
+            self.sigma_b.data.uniform_(-sigma_range, sigma_range)
+
+
+class NoisyLinear(nn.Module):
+    def __init__(self, in_features, out_features, sigma_init=0.017, bias=True):
+        super(NoisyLinear, self).__init__()
+        # Save Hyperparameters for reset_parameters()
+        self.in_features = in_features
+        self.out_features = out_features
+        self.sigma_init = sigma_init
+        self.bias = bias
+
+        # Define weight of the linear layer
+        self.mu_w = nn.Parameter(torch.Tensor(out_features, in_features))
+        self.sigma_w = nn.Parameter(torch.Tensor(out_features, in_features))
+        self.register_buffer('epsilon_sigma', torch.Tensor(out_features, in_features))
+
+        # Define the bias of a linear layer
+        if bias:
+            self.mu_b = nn.Parameter(torch.Tensor(out_features))
+            self.sigma_b = nn.Parameter(torch.Tensor(out_features))
+            self.register_buffer('epsilon_bias', torch.Tensor(out_featurs))
+
+        # Init parameters (Described in paper)
+        self.reset_parameters()
+
+    def forward(self, X):
+        # Reset the noise at each sample
+        self.reset_noise()
+
+        # Create weight
+        weight = self.mu_w + (self.sigma_w * self.epsilon_sigma)
+        if self.bias:
+            bias = self.mu_b + (self.sigma_b * self.epsilon_bias)
+        
+        # Forward pass the data through weight and bias
+        X = torch.matmul(weight, X)
+        if self.bias:
+            X = X + bias
+        
+        return X
+
+    def reset_noise(self):
+        # Sample noise from a normal distribution
+        self.epsilon_sigma.normal_()
+        if self.bias:
+            self.epsilon_bias.normal_()
+
+    def reset_parameters(self):
+        # Create distributions to sample mu and sigma
+        mu_range = math.sqrt(3 / self.in_features)
+        sigma_range = self.sigma_init / math.sqrt(self.in_features)
+
+        # Setup weight mu and sigma from distribution
+        self.mu_w.data.uniform_(-mu_range, mu_range)
+        self.sigma_w.data.uniform_(-sigma_range, sigma_range)
+
+        # Setup bias mu and sigma from distribution
+        if self.bias:
+            self.mu_b.data.uniform_(-mu_range, mu_range)
+            self.sigma_b.data.uniform_(-sigma_range, sigma_range)
